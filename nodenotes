@@ -1,0 +1,1352 @@
+sysadmin@AcubeL020:/var/www/html/node-app$ yarn init
+yarn init v1.3.2
+question name (node-app):
+question version (1.0.0):
+question description:
+question entry point (index.js):
+question repository url:
+question author:
+question license (MIT):
+question private:
+success Saved package.json
+Done in 37.74s.
+
+The above thing creats package.json file which looks like below
+package.json
+{
+  "name": "node-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
+}
+
+
+Installing third party Module
+
+lodash:https://lodash.com/docs/4.17.4
+
+
+sysadmin@AcubeL020:/var/www/html/node-app$ yarn add lodash
+yarn add v1.3.2
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved 1 new dependency.
+└─ lodash@4.17.4
+Done in 1.26s.
+
+Check the new dependency in package.json
+{
+  "name": "node-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}
+
+
+example:1
+console.log("starting app.js");
+const _=require('lodash');
+console.log(_.isString(true));
+console.log(_.isString('Raman'));
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js
+starting app.js
+false
+true
+
+example:2
+var filteredArray=_.uniq([10,20,10,'Raman','Kate','Jennie','Kate']);
+console.log(filteredArray);
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js
+starting app.js
+[ 10, 20, 'Raman', 'Kate', 'Jennie' ]
+
+
+nodemon:command line utility that gets executed from terminal.
+nodemon will watch the files in the directory in which nodemon was started, 
+and if any files change, nodemon will automatically restart your node application.
+
+sysadmin@AcubeL020:/var/www/html/node-app$ yarn add nodemon
+//installs nodemon
+
+
+
+
+Getting Input from User
+//Getting the input from command line
+
+Example:1
+console.log("starting app.js");
+const _=require('lodash');
+console.log(process.argv);
+output
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js "Hello"
+starting app.js
+[ '/usr/bin/node', '/var/www/html/node-app/app.js', 'Hello' ]
+
+Installing yargs:
+sysadmin@AcubeL020:/var/www/html/node-app$ yarn add  yargs@4.7.1
+yarn add v1.3.2
+//installs
+
+
+example:2
+console.log("starting app.js");
+const yargs=require('yargs');
+console.log('Process',process.argv);
+const argv=yargs.argv;
+console.log('yargs',argv);
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add --title add
+starting app.js
+Process [ '/usr/bin/node',
+  '/var/www/html/node-app/app.js',
+  'add',
+  '--title',
+  'add' ]
+yargs { _: [ 'add' ], title: 'add', '$0': 'app.js' }
+
+
+example:3
+
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.title==='add'){
+    notes.addNote(argv.title,argv.body);
+}
+else if(argv.title==='list'){
+    notes.getAll();
+}
+else if(argv.title==='read'){
+    notes.getNote(argv.title);
+}
+else if(argv.title==='remove'){
+    notes.removeNote(argv.title);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+notes.js
+
+var addNote=(title,body)=>{
+    console.log(title,body);
+}
+var getAll=()=>{
+    console.log("All notes");
+}
+var getNote=(title)=>{
+    console.log("getNote");
+}
+var removeNote=(title)=>{
+    console.log("remove notes");
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote
+
+}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add --title add --body test
+starting app.js
+add test
+
+
+
+Json notes
+What is JSON?
+Javascript Object Notation.
+JSON is a string that kind of looks like a Javascript object with the notable difference 
+being that is used as double quotes "", instead single quote ''
+
+var obj={
+    name:'Raman',
+}
+var strObj=JSON.stringify(obj);//returns a JSON stringified version i.e result stored in object is a string not an object anymore
+console.log(typeof strObj);
+console.log(strObj);
+output:
+sysadmin@AcubeL020:/var/www/html/node-app/playground$ node json.js
+string
+{"name":"Raman"}//json object //double quotes for all/json format.
+
+
+example:2
+var personString='{"name":"Raman","age":27}';//json format.
+var person=JSON.parse(personString);//converting json stringified to js object.
+console.log(typeof person);
+console.log(person);
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app/playground$ node json.js
+object
+{ name: 'Raman', age: 27 }
+
+example:3
+
+json.js
+const fs=require('fs');
+var originalNote={
+    title:'Some Title',
+    body:'Some Body'
+}
+const OriginalNoteString=JSON.stringify(originalNote);
+fs.writeFileSync('notes.json',OriginalNoteString);
+
+var noteString=fs.readFileSync('notes.json');
+const note=JSON.parse(noteString);
+console.log(typeof note);
+console.log(note.title);
+
+notes.json//create from above code
+{"title":"Some Title","body":"Some Body"}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app/playground$ node json.js
+object
+Some Title
+
+
+
+Adding and saving notes
+example:1
+
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.command==='add'){
+    notes.addNote(argv.title,argv.body);
+}
+else if(argv.command==='list'){
+    notes.getAll();
+}
+else if(argv.command==='read'){
+    notes.getNote(argv.title);
+}
+else if(argv.command==='remove'){
+    notes.removeNote(argv.title);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+
+notes.js
+
+const fs=require('fs');
+var addNote=(title,body)=>{
+
+     var notes=[];
+     var note={
+         title,
+         body
+     }
+   
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+    }
+    catch(e){
+
+    }
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+       
+     }
+     else{
+
+     }
+     
+}
+var getAll=()=>{
+    console.log("All notes");
+}
+var getNote=(title)=>{
+    console.log("getNote");
+}
+var removeNote=(title)=>{
+    console.log("remove notes");
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote
+
+}
+
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add --body="some textclear"
+starting app.js
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add --body="some textclear"//will elimnate duplicate 
+starting app.js
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add1 --body="some textclear"
+starting app.js
+
+notest-data.json
+[{"title":"add","body":"some text"},{"title":"add1","body":"some textclear"}]
+
+
+
+Refactoring For Re-usablity
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        console.log(`title: ${note.title}`);
+        console.log(`body: ${note.body}`);
+
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(argv.command==='list'){
+    notes.getAll();
+}
+else if(argv.command==='read'){
+    notes.getNote(argv.title);
+}
+else if(argv.command==='remove'){
+    notes.removeNote(argv.title);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    console.log("All notes");
+}
+var getNote=(title)=>{
+    console.log("getNote");
+}
+var removeNote=(title)=>{
+    console.log("remove notes");
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote
+
+}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add1 --body="some textclear"
+starting app.js
+title: add1
+body: some textclear
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add1 --body="some textclear"
+starting app.js
+Note Already Added
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add2 --body="some textclear"
+starting app.js
+title: add2
+body: some textclear
+
+and
+
+notest-data.json
+[{"title":"add1","body":"some textclear"},{"title":"add2","body":"some textclear"}]
+
+
+
+Remove Notes
+example:1
+
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        console.log(`title: ${note.title}`);
+        console.log(`body: ${note.body}`);
+
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(argv.command==='list'){
+    notes.getAll();
+}
+else if(argv.command==='read'){
+    notes.getNote(argv.title);
+}
+else if(argv.command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    console.log("All notes");
+}
+var getNote=(title)=>{
+    console.log("getNote");
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote
+
+}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add1 --body="some textclear"
+starting app.js
+title: add1
+body: some textclear
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=add  --title=add2 --body="some textclear"
+starting app.js
+title: add2
+body: some textclear
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=remove --title=add2 --body="some textclear"
+starting app.js
+Note removed
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=remove --title=add2 --body="some textclear"
+starting app.js
+Note Not Found
+
+notest-data.json
+[{"title":"add1","body":"some textclear"}]
+
+
+
+Reading Notes
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        notes.logNote(note)
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(argv.command==='list'){
+    notes.getAll();
+}
+else if(argv.command==='read'){
+   var note= notes.getNote(argv.title);
+   if(note){
+      notes.logNote(note)
+   }
+   else{
+    console.log('Note Not Found');
+   }
+}
+else if(argv.command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    console.log("All notes");
+}
+var getNote=(title)=>{
+    var notes=fetchNotes();
+    var filteredNotes= notes.filter((note)=>note.title===title);
+    return filteredNotes[0];
+    
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+
+var logNote=(note)=>{
+    console.log(`title: ${note.title}`);
+    console.log(`body: ${note.body}`);
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote,
+    logNote
+
+}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=read  --title=add1 --body="some textclear"
+starting app.js
+title: add1
+body: some textclear
+
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=read  --title=add4 --body="some textclear"
+starting app.js
+Note Not Found
+
+notest-data.json
+[{"title":"add2","body":"some textclear"},{"title":"add1","body":"some textclear"}]
+
+
+Listing Notes:
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+const argv=yargs.argv;
+
+if(argv.command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        notes.logNote(note)
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(argv.command==='list'){
+    var allNotes=notes.getAll();
+    console.log(`Printing Notes: ${allNotes.length} notes(s)`);
+    allNotes.forEach((note)=>notes.logNote(note));
+}
+else if(argv.command==='read'){
+   var note= notes.getNote(argv.title);
+   if(note){
+      notes.logNote(note)
+   }
+   else{
+    console.log('Note Not Found');
+   }
+}
+else if(argv.command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    return fetchNotes();
+}
+var getNote=(title)=>{
+    var notes=fetchNotes();
+    var filteredNotes= notes.filter((note)=>note.title===title);
+    return filteredNotes[0];
+    
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+
+var logNote=(note)=>{
+    console.log(`title: ${note.title}`);
+    console.log(`body: ${note.body}`);
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote,
+    logNote
+
+}
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js --command=list
+starting app.js
+Printing Notes: 2 notes(s)
+title: add2
+body: some textclear
+title: add1
+body: some textclear
+
+
+
+
+
+
+
+
+Debugging Node.js application
+
+>node inspect playground/debugging.js
+
+
+list(10);
+n->next line debugging
+c->execute all line code inn debugging
+
+debug>n
+debug>repl
+>//repl mode
+
+
+
+Requiring arguments and Advanced Yargs.
+
+const argv=yargs
+                .command('add','Add a new note',{
+                    title:{
+                        describe:'Title  of note ',
+                        demand:true,//tells whether or not the argument is  required.
+                        alias:'t'//alias name
+                    },
+                    body:{
+                        describe:'Body of note',
+                        demand:true,
+                        alias:'b'//alias name
+                    }
+                })
+                .help()//shows the require arugment 
+                .argv;
+
+The above code works as below
+.help()->show the arguments that required and let us know if misse any arguments
+that are defined true in demand(i.e demand:true)
+
+i.e
+
+Options:
+  --help       Show help                                               [boolean]
+  --title, -t  Title  of note                                         [required]
+  --body,  -b   Body of note                                           [required]
+
+
+
+
+
+
+
+
+
+
+app.js
+
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+
+//const argv=yargs.argv;
+
+const argv=yargs
+                .command('add','Add a new note',{
+                    title:{
+                        describe:'Title  of note ',
+                        demand:true,//tells whether or not the argument is  required.
+                        alias:'t'
+                    },
+                    body:{
+                        describe:'Body of note',
+                        demand:true,
+                        alias:'b'
+                    }
+                })
+                .help()
+                .argv;
+
+if(argv.command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        notes.logNote(note)
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(argv.command==='list'){
+    var allNotes=notes.getAll();
+    console.log(`Printing Notes: ${allNotes.length} notes(s)`);
+    allNotes.forEach((note)=>notes.logNote(note));
+}
+else if(argv.command==='read'){
+   var note= notes.getNote(argv.title);
+   if(note){
+      notes.logNote(note)
+   }
+   else{
+    console.log('Note Not Found');
+   }
+}
+else if(argv.command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    return fetchNotes();
+}
+var getNote=(title)=>{
+    var notes=fetchNotes();
+    var filteredNotes= notes.filter((note)=>note.title===title);
+    return filteredNotes[0];
+    
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+
+var logNote=(note)=>{
+    console.log(`title: ${note.title}`);
+    console.log(`body: ${note.body}`);
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote,
+    logNote
+
+}
+
+output:
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add --help
+starting app.js
+app.js add
+
+Options:
+  --help       Show help                                               [boolean]
+  --title, -t  Title  of note                                         [required]
+  --body, -b   Body of note                                           [required]
+
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add --command="add" -t="moon" -b="body moon"
+starting app.js
+title: moon
+body: body moon
+
+
+
+example:2
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+
+
+//const argv=yargs.argv;
+
+const argv=yargs
+                .command('add','Add a new note',{
+                    title:{
+                        describe:'Title  of note ',
+                        demand:true,//tells whether or not the argument is  required.
+                        alias:'t'
+                    },
+                    body:{
+                        describe:'Body of note',
+                        demand:true,
+                        alias:'b'
+                    }
+                })
+                .command('list','List all  notes')
+                .command('read','Read a note',{
+
+                    title:{
+                        describe:'Title of note',
+                        demand:true,
+                        alias:'t'
+                    }
+
+                })
+                .command('remove','Remove a note',{
+                    title:{
+                        describe:'Title of note',
+                        demand:true,
+                        alias:'t'
+                    }
+                })
+                .help()
+                .argv;
+
+   var command=argv._[0];
+
+if(command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        notes.logNote(note)
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(command==='list'){
+    var allNotes=notes.getAll();
+    console.log(`Printing Notes: ${allNotes.length} notes(s)`);
+    allNotes.forEach((note)=>notes.logNote(note));
+}
+else if(command==='read'){
+   var note= notes.getNote(argv.title);
+   if(note){
+      notes.logNote(note)
+   }
+   else{
+    console.log('Note Not Found');
+   }
+}
+else if(command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    return fetchNotes();
+}
+var getNote=(title)=>{
+    var notes=fetchNotes();
+    var filteredNotes= notes.filter((note)=>note.title===title);
+    return filteredNotes[0];
+    
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+
+var logNote=(note)=>{
+    console.log(`title: ${note.title}`);
+    console.log(`body: ${note.body}`);
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote,
+    logNote
+
+}
+
+
+
+output:
+
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add
+starting app.js
+app.js add
+
+Options:
+  --help       Show help                                               [boolean]
+  --title, -t  Title  of note                                         [required]
+  --body, -b   Body of note                                           [required]
+
+Missing required arguments: title, body
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js remove
+starting app.js
+app.js remove
+
+Options:
+  --help       Show help                                               [boolean]
+  --title, -t  Title of note                                          [required]
+
+Missing required argument: title
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add -t="new title" -b="new body"
+starting app.js
+title: new title
+body: new body
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js remove
+starting app.js
+app.js remove
+
+Options:
+  --help       Show help                                               [boolean]
+  --title, -t  Title of note                                          [required]
+
+Missing required argument: title
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js remove  -t="new title"
+starting app.js
+Note removed
+
+
+
+example:4(important)
+app.js
+console.log("starting app.js");
+const yargs=require('yargs');
+const notes=require('./notes.js');
+
+
+//const argv=yargs.argv;
+const titleOption={
+    describe:'Title of note',
+    demand:true,
+    alias:'t'
+}
+const bodyOption={
+    describe:'Body of note',
+    demand:true,
+    alias:'b'
+}
+const argv=yargs
+                .command('add','Add a new note',{
+                    title:titleOption,
+                    body:bodyOption
+                 
+                })
+                .command('list','List all  notes')
+                .command('read','Read a note',{
+                    title:titleOption
+                })
+                .command('remove','Remove a note',{
+                    title:titleOption
+                })
+                .help()
+                .argv;
+
+   var command=argv._[0];
+
+if(command==='add'){
+    var note=notes.addNote(argv.title,argv.body);
+    if(note){
+        notes.logNote(note)
+    }
+    else{
+        console.log('Note Already Added');
+    }
+}
+else if(command==='list'){
+    var allNotes=notes.getAll();
+    console.log(`Printing Notes: ${allNotes.length} notes(s)`);
+    allNotes.forEach((note)=>notes.logNote(note));
+}
+else if(command==='read'){
+   var note= notes.getNote(argv.title);
+   if(note){
+      notes.logNote(note)
+   }
+   else{
+    console.log('Note Not Found');
+   }
+}
+else if(command==='remove'){
+    var noteRemoved=notes.removeNote(argv.title);
+    var message=noteRemoved?'Note removed':'Note Not Found';
+    console.log(message);
+}
+else{
+    console.log('Comman Not Found');
+}
+
+
+notes.js
+
+const fs=require('fs');
+
+var fetchNotes=()=>{
+    try{
+        var notesString=fs.readFileSync('notest-data.json');//if there is no file,try block will handle
+        notes=JSON.parse(notesString);
+        return notes
+    }
+    catch(e){
+      return [];
+    }
+}
+
+var saveNotes=(notes)=>{
+    fs.writeFileSync('notest-data.json',JSON.stringify(notes));
+}
+
+var addNote=(title,body)=>{
+
+     var notes=fetchNotes();
+     var note={
+         title,
+         body
+     }
+    
+
+     var  duplicateNotes=notes.filter((note)=> note.title===title);
+     if(duplicateNotes.length===0){
+        notes.push(note);
+        saveNotes(notes);
+        return note;
+     }
+     
+}
+var getAll=()=>{
+    return fetchNotes();
+}
+var getNote=(title)=>{
+    var notes=fetchNotes();
+    var filteredNotes= notes.filter((note)=>note.title===title);
+    return filteredNotes[0];
+    
+}
+var removeNote=(title)=>{
+
+     var  notes=fetchNotes();
+     var filteredNotes=notes.filter((note)=>note.title!==title)
+     saveNotes(filteredNotes);
+     
+     return notes.length!==filteredNotes.length;
+
+
+}
+
+var logNote=(note)=>{
+    console.log(`title: ${note.title}`);
+    console.log(`body: ${note.body}`);
+}
+module.exports={
+    addNote,
+    getAll,
+    getNote,
+    removeNote,
+    logNote
+
+}
+
+notest-data.json
+[{"title":"add2","body":"some textclear"},{"title":"add1","body":"some textclear"}]
+
+output:
+
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js add -t="new title" -b="new body"
+starting app.js
+title: new title
+body: new body
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js remove -t="new title"
+starting app.js
+Note removed
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js list --help
+starting app.js
+Printing Notes: 2 notes(s)
+title: add2
+body: some textclear
+title: add1
+body: some textclear
+sysadmin@AcubeL020:/var/www/html/node-app$ node app.js list
+starting app.js
+Printing Notes: 2 notes(s)
+title: add2
+body: some textclear
+title: add1
+body: some textclear
+
+
+refer
+24 th video about arrow function for this functionality in arrow
+i.e 
+
+var person={
+name:'Andrew'
+say:()=>{
+    console.log(this.name);//undefined
+},
+sayAlt(){
+    console.log(arguments);
+    console.log(this.name);
+}
+}
+person.say();//undefined
+person.sayAlt(1,2,3);//Andrew
+output
+1,2,3
+
+
